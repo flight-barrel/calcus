@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Финансовый калькулятор</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 { margin-bottom: 10px; }
+        .section { margin-bottom: 20px; }
+        .inputs { margin-top: 10px; }
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .row input {
+            padding: 6px;
+        }
+        .row input[type="text"] {
+            flex: 2;
+        }
+        .row input[type="number"] {
+            flex: 1;
+        }
+        .row button {
+            background: #ff4d4f;
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .row button:hover { opacity: 0.8; }
+        .add-btn {
+            margin-top: 5px;
+            background: #1677ff;
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .add-btn:hover { opacity: 0.9; }
+        #result {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f3f3f3;
+        }
+        ul { padding-left: 20px; }
+    </style>
+</head>
+<body>
+<h2>Финансовый калькулятор</h2>
+
+<div class="section">
+    <h3>Доходы</h3>
+    <div id="income-list" class="inputs"></div>
+    <button class="add-btn" onclick="addInput('income-list')">+ Добавить доход</button>
+</div>
+
+<div class="section">
+    <h3>Расходы</h3>
+    <div id="expenses-list" class="inputs"></div>
+    <button class="add-btn" onclick="addInput('expenses-list')">+ Добавить расход</button>
+</div>
+
+<div class="section">
+    <h3>Период бюджета</h3>
+    <label>Дата начала: <input type="date" id="start-date" onchange="saveData()"></label>
+    <label>Дата конца: <input type="date" id="end-date" onchange="saveData()"></label>
+</div>
+
+<button class="add-btn" style="width:100%; margin-top:10px;" onclick="calculate()">Посчитать</button>
+
+<div id="result"></div>
+
+<script src="index.js">
+
+</script>
+</body>
+</html>
