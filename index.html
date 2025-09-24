@@ -1,91 +1,348 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>Финансовый калькулятор</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#0d6efd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#317EFB">
+
+    <!-- Bootstrap + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
     <style>
-        body {
-            font-family: sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        body { background:#f8f9fa; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+        .container-max { max-width: 920px; }
+        .item-row { display: flex; gap: .5rem; align-items:center; flex-wrap:wrap; }
+        .item-name { flex: 1 1 180px; min-width: 140px; }
+        .item-amount { width: 140px; max-width: 40%; min-width:110px; }
+        @media (max-width: 480px) {
+            .item-amount { width: 100%; max-width: none; }
+            .item-row { gap: .6rem; }
         }
-        h2 { margin-bottom: 10px; }
-        .section { margin-bottom: 20px; }
-        .inputs { margin-top: 10px; }
-        .row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-        .row input {
-            padding: 6px;
-        }
-        .row input[type="text"] {
-            flex: 2;
-        }
-        .row input[type="number"] {
-            flex: 1;
-        }
-        .row button {
-            background: #ff4d4f;
-            border: none;
-            color: white;
-            padding: 6px 10px;
-            cursor: pointer;
-            border-radius: 6px;
-        }
-        .row button:hover { opacity: 0.8; }
-        .add-btn {
-            margin-top: 5px;
-            background: #1677ff;
-            border: none;
-            color: white;
-            padding: 6px 10px;
-            cursor: pointer;
-            border-radius: 6px;
-        }
-        .add-btn:hover { opacity: 0.9; }
-        #result {
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 8px;
-            background: #f3f3f3;
-        }
-        ul { padding-left: 20px; }
+        .small-muted { color: #6c757d; font-size:.9rem; }
+        /* Result card inner spacing */
+        #result .list-group-item { display:flex; justify-content:space-between; gap:.5rem; align-items:center; }
     </style>
 </head>
 <body>
-<h2>Финансовый калькулятор</h2>
+<div class="container container-max py-4">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h2 class="h4 mb-0">Финансовый калькулятор</h2>
+            <div class="small-muted">Чётко, просто и без лишних движений</div>
+        </div>
+        <div class="text-end">
+            <button id="clearAll" class="btn btn-outline-secondary btn-sm" title="Очистить всё">
+                <i class="bi bi-trash"></i> Очистить
+            </button>
+        </div>
+    </div>
 
-<div class="section">
-    <h3>Доходы</h3>
-    <div id="income-list" class="inputs"></div>
-    <button class="add-btn" onclick="addInput('income-list')">+ Добавить доход</button>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h3 class="h6 mb-0">Доходы</h3>
+                        <button id="addIncome" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-lg"></i> Добавить
+                        </button>
+                    </div>
+                    <div id="income-list" class="mb-2"></div>
+                    <div class="small-muted">Каждый доход — отдельной строкой</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h3 class="h6 mb-0">Расходы</h3>
+                        <button id="addExpense" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-lg"></i> Добавить
+                        </button>
+                    </div>
+                    <div id="expenses-list" class="mb-2"></div>
+                    <div class="small-muted">Включай всё: подписки, еда, бензин</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3 mb-3 shadow-sm">
+        <div class="card-body">
+            <h3 class="h6">Период бюджета</h3>
+            <div class="row g-2">
+                <div class="col-12 col-sm-6">
+                    <label class="form-label small">Дата начала</label>
+                    <input id="start-date" type="date" class="form-control form-control-sm">
+                </div>
+                <div class="col-12 col-sm-6">
+                    <label class="form-label small">Дата конца</label>
+                    <input id="end-date" type="date" class="form-control form-control-sm">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-grid mb-2">
+        <button id="calculateBtn" class="btn btn-success btn-lg">Посчитать</button>
+    </div>
+
+    <div id="result" class="card d-none shadow-sm">
+        <div class="card-body" id="result-body"></div>
+    </div>
+
+    <div class="text-center mt-3 small-muted">PWA-ready — сервис-воркер и манифест остаются на месте</div>
 </div>
 
-<div class="section">
-    <h3>Расходы</h3>
-    <div id="expenses-list" class="inputs"></div>
-    <button class="add-btn" onclick="addInput('expenses-list')">+ Добавить расход</button>
-</div>
+<!-- Script -->
+<script>
+    // --- Утилиты ---
+    const $ = sel => document.querySelector(sel);
+    const fmt = n => Number(n).toLocaleString('ru-RU', {maximumFractionDigits: 2, minimumFractionDigits: (Number(n)%1 ? 2 : 0)});
+    const msPerDay = 1000 * 60 * 60 * 24;
 
-<div class="section">
-    <h3>Период бюджета</h3>
-    <label>Дата начала: <input type="date" id="start-date" onchange="saveData()"></label>
-    <label>Дата конца: <input type="date" id="end-date" onchange="saveData()"></label>
-</div>
+    // --- Создание строки дохода/расхода ---
+    function addInput(listId, name = '', value = '') {
+        const container = document.getElementById(listId);
+        const row = document.createElement('div');
+        row.className = 'item-row';
 
-<button class="add-btn" style="width:100%; margin-top:10px;" onclick="calculate()">Посчитать</button>
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.className = 'form-control form-control-sm item-name';
+        nameInput.placeholder = 'Название (напр. Зарплата, Фриланс...)';
+        nameInput.value = name || '';
 
-<div id="result"></div>
+        const amountInput = document.createElement('input');
+        amountInput.type = 'number';
+        amountInput.step = '0.01';
+        amountInput.className = 'form-control form-control-sm item-amount';
+        amountInput.placeholder = 'Сумма';
+        amountInput.value = (value !== undefined && value !== null) ? value : '';
 
-<script src="index.js">
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-outline-danger btn-sm';
+        btn.title = 'Удалить';
+        btn.innerHTML = '<i class="bi bi-x-lg"></i>';
 
+        btn.addEventListener('click', () => {
+            row.remove();
+            saveData();
+        });
+
+        // автосохранение при вводе
+        [nameInput, amountInput].forEach(inp => inp.addEventListener('input', saveData));
+
+        row.append(nameInput, amountInput, btn);
+        container.appendChild(row);
+        // немного UX — фокус на названии если строка свежая
+        if (!name && !value) nameInput.focus();
+        saveData();
+    }
+
+    // --- Получение значений ---
+    function getItems(listId) {
+        const rows = document.querySelectorAll(`#${listId} .item-row`);
+        return Array.from(rows).map(row => {
+            const name = row.querySelector('.item-name').value.trim();
+            const raw = row.querySelector('.item-amount').value;
+            const v = parseFloat(String(raw).replace(',', '.')) || 0;
+            return { name, value: v };
+        });
+    }
+
+    function sum(items) {
+        return items.reduce((s, it) => s + Number(it.value || 0), 0);
+    }
+
+    // --- Вывод результата ---
+    function calculate() {
+        const incomes = getItems('income-list');
+        const expenses = getItems('expenses-list');
+
+        const income = sum(incomes);
+        const expense = sum(expenses);
+        const balance = income - expense;
+        const savingsRate = income > 0 ? ((balance / income) * 100) : 0;
+
+        // период
+        const startVal = $('#start-date').value;
+        const endVal = $('#end-date').value;
+        let days = 0, perDay = 0;
+        if (startVal && endVal) {
+            const start = new Date(startVal);
+            const end = new Date(endVal);
+            days = Math.ceil((end - start) / msPerDay) + 1;
+            if (days < 0) days = 0;
+            if (days > 0 && balance > 0) perDay = balance / days;
+        }
+
+        // Формируем HTML аккуратно с Bootstrap-классами
+        const resultBody = $('#result-body');
+        resultBody.innerHTML = ''; // очистить
+
+        // Заголовок баланса
+        const header = document.createElement('div');
+        header.className = 'd-flex justify-content-between align-items-start mb-3';
+        header.innerHTML = `
+        <div>
+          <h5 class="mb-1">Баланс: <span class="${balance>0 ? 'text-success' : (balance<0 ? 'text-danger' : 'text-muted')}">${fmt(balance)} ₽</span></h5>
+          <div class="small-muted">Доходы: ${fmt(income)} ₽ · Расходы: ${fmt(expense)} ₽ · Сбережения: ${isFinite(savingsRate) ? savingsRate.toFixed(1) + '%' : '—'}</div>
+        </div>
+        <div class="text-end">
+          ${days > 0 ? `<div class="small-muted">Период: <strong>${days} дн.</strong></div>` : ''}
+          ${perDay > 0 ? `<div class="mt-1"><span class="badge bg-primary">Можно тратить в день: ${fmt(perDay)} ₽</span></div>` : ''}
+        </div>
+      `;
+        resultBody.appendChild(header);
+
+        // колонки доходов/расходов
+        const listsRow = document.createElement('div');
+        listsRow.className = 'row';
+        listsRow.innerHTML = `
+        <div class="col-12 col-md-6 mb-2">
+          <div class="card border-0">
+            <div class="card-body p-0">
+              <h6 class="mb-2">Доходы</h6>
+              <ul class="list-group list-group-flush" id="result-incomes"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 mb-2">
+          <div class="card border-0">
+            <div class="card-body p-0">
+              <h6 class="mb-2">Расходы</h6>
+              <ul class="list-group list-group-flush" id="result-expenses"></ul>
+            </div>
+          </div>
+        </div>
+      `;
+        resultBody.appendChild(listsRow);
+
+        const incomesList = resultBody.querySelector('#result-incomes');
+        const expensesList = resultBody.querySelector('#result-expenses');
+
+        if (incomes.length === 0) {
+            incomesList.innerHTML = `<li class="list-group-item small-muted">Нет доходов</li>`;
+        } else {
+            incomes.forEach(i => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.innerHTML = `<div class="text-truncate">${escapeHtml(i.name || 'Без названия')}</div><div class="ms-2"><strong>${fmt(i.value)} ₽</strong></div>`;
+                incomesList.appendChild(li);
+            });
+        }
+
+        if (expenses.length === 0) {
+            expensesList.innerHTML = `<li class="list-group-item small-muted">Нет расходов</li>`;
+        } else {
+            expenses.forEach(e => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.innerHTML = `<div class="text-truncate">${escapeHtml(e.name || 'Без названия')}</div><div class="ms-2"><strong>${fmt(e.value)} ₽</strong></div>`;
+                expensesList.appendChild(li);
+            });
+        }
+
+        // Подсказка/руководство
+        const note = document.createElement('div');
+        note.className = 'mt-3 small-muted';
+        if (balance > 0) {
+            note.innerHTML = '✅ Отлично — есть положительный баланс. Подумай о цели: депозит, инвестиция или "подушка".';
+        } else if (balance === 0) {
+            note.innerHTML = '😐 Баланс нулевой — ничего не откладываешь.';
+        } else {
+            note.innerHTML = `⚠️ Дефицит ${fmt(Math.abs(balance))} ₽ — сократи расходы или попробуй увеличить доходы.`;
+        }
+        resultBody.appendChild(note);
+
+        // Показать блок результата
+        $('#result').classList.remove('d-none');
+
+        // Сохраняем результат (не HTML, а данные)
+        saveData();
+    }
+
+    // --- Сохранение / загрузка ---
+    function saveData() {
+        const payload = {
+            incomes: getItems('income-list'),
+            expenses: getItems('expenses-list'),
+            startDate: $('#start-date').value,
+            endDate: $('#end-date').value
+        };
+        localStorage.setItem('financeData', JSON.stringify(payload));
+    }
+
+    function loadData() {
+        const raw = localStorage.getItem('financeData');
+        const incomeList = $('#income-list');
+        const expensesList = $('#expenses-list');
+        incomeList.innerHTML = '';
+        expensesList.innerHTML = '';
+        if (raw) {
+            try {
+                const data = JSON.parse(raw);
+                (data.incomes || []).forEach(i => addInput('income-list', i.name, i.value));
+                (data.expenses || []).forEach(e => addInput('expenses-list', e.name, e.value));
+                if (data.startDate) $('#start-date').value = data.startDate;
+                if (data.endDate) $('#end-date').value = data.endDate;
+            } catch (e) {
+                // fallback — пустые строки
+                addInput('income-list');
+                addInput('expenses-list');
+            }
+        } else {
+            // по умолчанию одна пустая строка в каждой колонке
+            addInput('income-list');
+            addInput('expenses-list');
+        }
+    }
+
+    // --- Вспомогательное: безопасный вывод текста (чтобы избежать вставки HTML) ---
+    function escapeHtml(str) {
+        return String(str).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    }
+
+    // --- Инициализация событий ---
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+
+        document.getElementById('addIncome').addEventListener('click', () => addInput('income-list'));
+        document.getElementById('addExpense').addEventListener('click', () => addInput('expenses-list'));
+        document.getElementById('calculateBtn').addEventListener('click', calculate);
+
+        $('#start-date').addEventListener('change', saveData);
+        $('#end-date').addEventListener('change', saveData);
+
+        $('#clearAll').addEventListener('click', () => {
+            if (confirm('Очистить все поля и сохранённые данные?')) {
+                localStorage.removeItem('financeData');
+                $('#income-list').innerHTML = '';
+                $('#expenses-list').innerHTML = '';
+                $('#start-date').value = '';
+                $('#end-date').value = '';
+                addInput('income-list');
+                addInput('expenses-list');
+                $('#result').classList.add('d-none');
+            }
+        });
+
+        // регистрация service worker (если есть файл sw.js)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker?.register('sw.js').catch(()=>{ /* не мешаем работе, если нет sw */ });
+        }
+    });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
